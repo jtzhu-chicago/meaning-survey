@@ -1,0 +1,1222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Social Attitudes Survey</title>
+<style>
+  :root{
+    --bg:#FAF8F4;
+    --ink:#23261F;
+    --ink-soft:#55564E;
+    --line:#DAD5C8;
+    --accent:#3E5C52;
+    --accent-soft:#E4EDE9;
+    --warn:#A6432C;
+    --card-bg:#FFFFFF;
+    --max-w:640px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:Georgia,'Times New Roman',serif;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  body.lang-zh{
+    font-family:"PingFang SC","Microsoft YaHei","Heiti SC",sans-serif;
+    line-height:1.75;
+  }
+  .chrome{
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  }
+  body.lang-zh .chrome{
+    font-family:"PingFang SC","Microsoft YaHei","Heiti SC",sans-serif;
+  }
+  #progress-wrap{
+    position:fixed; top:0; left:0; right:0; height:4px;
+    background:var(--line); z-index:50;
+  }
+  #progress-bar{
+    height:100%; width:0%; background:var(--accent);
+    transition:width .4s ease;
+  }
+  .screen-outer{
+    min-height:100vh;
+    display:flex;
+    align-items:flex-start;
+    justify-content:center;
+    padding:56px 20px 72px;
+  }
+  .screen{
+    width:100%;
+    max-width:var(--max-w);
+    display:none;
+  }
+  .screen.active{display:block;}
+  .eyebrow{
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    font-size:13px;
+    font-weight:700;
+    color:var(--accent);
+    margin-bottom:10px;
+    letter-spacing:.04em;
+    text-transform:uppercase;
+  }
+  .qnum{
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    font-size:13px;
+    font-weight:600;
+    color:var(--ink);
+    margin-bottom:16px;
+    padding-bottom:10px;
+    border-bottom:2px solid var(--accent);
+  }
+  h1{ font-size:26px; font-weight:400; line-height:1.3; margin:0 0 18px; }
+  h2{ font-size:21px; font-weight:400; line-height:1.35; margin:0 0 20px; }
+  p{margin:0 0 16px;}
+  p.lede{color:var(--ink); font-size:17px;}
+  .card{
+    background:var(--card-bg);
+    border:1px solid var(--line);
+    border-radius:4px;
+    padding:22px 24px;
+    margin-bottom:18px;
+  }
+  .card h3{
+    font-size:16px; font-weight:700;
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    margin:0 0 8px; color:var(--accent);
+  }
+  .card p{font-size:16px; margin-bottom:0;}
+  .statement-line{
+    font-size:18px; line-height:1.5; margin:0 0 14px;
+    padding:16px 18px; background:var(--card-bg); border:1px solid var(--line);
+    border-radius:4px;
+  }
+  .statement-line strong{ color:var(--accent); }
+  .slider-block{margin:28px 0 8px;}
+  .slider-labels{
+    display:flex; justify-content:space-between;
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    font-size:15px; line-height:1.4; color:var(--ink); margin-bottom:12px;
+  }
+  .slider-labels span{max-width:45%;}
+  .slider-labels span:last-child{text-align:right;}
+  input[type=range]{
+    width:100%; -webkit-appearance:none; appearance:none;
+    height:6px; border-radius:3px; background:var(--line);
+    outline:none; touch-action:pan-x;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none; width:26px; height:26px; border-radius:50%;
+    background:var(--accent); border:3px solid #fff;
+    box-shadow:0 1px 4px rgba(0,0,0,.25); cursor:pointer; margin-top:0;
+  }
+  input[type=range]::-moz-range-thumb{
+    width:26px; height:26px; border-radius:50%;
+    background:var(--accent); border:3px solid #fff;
+    box-shadow:0 1px 4px rgba(0,0,0,.25); cursor:pointer;
+  }
+  input[type=range].untouched::-webkit-slider-thumb{ background:#fff; border:3px solid var(--accent); }
+  input[type=range].untouched::-moz-range-thumb{ background:#fff; border:3px solid var(--accent); }
+
+  .choice-list{list-style:none; margin:0 0 8px; padding:0;}
+  .choice-item{
+    border:1px solid var(--line); border-radius:4px; padding:14px 16px;
+    margin-bottom:10px; cursor:pointer; font-size:16px; background:#fff;
+    transition:border-color .15s, background .15s;
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  }
+  .choice-item:hover{border-color:var(--accent);}
+  .choice-item:focus-visible, .rank-item:focus-visible{
+    outline:3px solid var(--accent); outline-offset:1px;
+  }
+  .choice-item.selected{ border-color:var(--accent); background:var(--accent-soft); }
+  .rank-list{list-style:none; margin:0 0 8px; padding:0;}
+  .rank-item{
+    border:1px solid var(--line); border-radius:4px; padding:14px 16px;
+    margin-bottom:10px; background:#fff; font-size:16px;
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    display:flex; align-items:center; gap:14px; user-select:none;
+  }
+  .rank-badge{
+    flex:0 0 28px; height:28px; border-radius:50%;
+    background:#fff; border:2px solid var(--accent); color:var(--ink);
+    display:flex; align-items:center; justify-content:center;
+    font-size:14px; font-weight:700;
+  }
+  .rank-item.ranked .rank-badge{ background:var(--accent); color:#fff; }
+  textarea, input[type=text], input[type=number]{
+    width:100%;
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    font-size:16px; padding:12px 14px; border:1px solid var(--line);
+    border-radius:4px; background:#fff; color:var(--ink);
+  }
+  textarea:focus, input:focus, input[type=range]:focus{
+    outline:2px solid var(--accent); outline-offset:2px;
+  }
+  .btn-row{margin-top:30px; display:flex; justify-content:flex-end; gap:12px;}
+  button.next{
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    background:var(--accent); color:#fff; border:none; padding:13px 28px;
+    border-radius:4px; font-size:15px; cursor:pointer;
+    transition:opacity .15s, transform .1s;
+  }
+  button.next:disabled{opacity:.35; cursor:not-allowed;}
+  button.next:not(:disabled):active{transform:translateY(1px);}
+  .hint{
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    font-size:13px; color:var(--warn); margin-top:10px; min-height:18px;
+  }
+  .consent-box{
+    background:var(--card-bg); border:1px solid var(--line); border-radius:4px;
+    padding:26px 28px;
+  }
+  .code-box{
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    background:var(--accent-soft); border:1px solid var(--accent); border-radius:4px;
+    padding:18px 20px; font-size:20px; letter-spacing:.06em; text-align:center;
+    margin:20px 0; color:var(--accent); font-weight:700;
+  }
+  a.download-link{
+    display:inline-block;
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    font-size:14px; color:var(--accent); text-decoration:underline;
+    margin-top:6px; cursor:pointer;
+  }
+  footer.note{
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    font-size:13px; color:var(--ink); margin-top:10px;
+  }
+</style>
+</head>
+<body>
+
+<div id="progress-wrap"><div id="progress-bar"></div></div>
+<div class="screen-outer"><div id="screens"></div></div>
+
+<script>
+/* ======================================================================
+   LANGUAGE
+   Set via ?lang=zh in the URL (default: en). Run two separate Prolific
+   study links — one per language pool — each pointing here with the
+   right ?lang= value baked into the Study URL.
+   ====================================================================== */
+function qs(name){ return new URLSearchParams(window.location.search).get(name); }
+const LANG = (qs('lang') === 'zh') ? 'zh' : 'en';
+document.body.classList.add('lang-'+LANG);
+
+/* Testing helpers — not used by real respondents, only by you while
+   testing. Append to the URL, e.g. ...html?force_quadrant=creation&force_shock=opposite */
+const FORCE_QUADRANT = qs('force_quadrant'); // experience|recognition|creation|transcendence
+const FORCE_SHOCK = qs('force_shock');       // own|opposite
+
+/* ======================================================================
+   STRINGS
+   ====================================================================== */
+const STR = {
+en:{
+  nav_continue:"Continue",
+  nav_agree_begin:"I agree — begin the survey",
+  nav_finish:"Finish survey",
+  nav_submitting:"Submitting…",
+  qnum:(n,m)=>`Question ${n} of ${m}`,
+  slider_midpoint:"Please move the slider — it cannot stay at the exact midpoint.",
+  rank_hint:"Click items in the order you'd rank them (1st click = rank 1, and so on). Click again to undo.",
+
+  consent_eyebrow:"Before you begin",
+  consent_title:"Social attitudes & outlook",
+  consent_p1:"This is a research survey about social attitudes and how people see the world around them. There are no right or wrong answers. Your responses are confidential and used for research purposes only. Partway through you will read a short passage that was written for this study. A full explanation follows at the end. You may stop at any time.",
+  consent_p2:"This survey should take about 10 minutes to complete. Please complete it in one sitting, on a device with a stable internet connection. At the end of the survey, you will receive a completion code — please copy and enter this code on the Prolific study page to confirm your submission and receive payment. If you encounter any technical issues, please return your submission on Prolific rather than leaving it incomplete.",
+
+  demo_eyebrow:"About you",
+  demo_h2:"A few background questions",
+  demo_lede:"These help us understand who took part. Nothing here is used to identify you personally.",
+  demo_age:"Age",
+  demo_age_ph:"Your age in years",
+  demo_gender:"Gender",
+  gender_opts:[["man","Man"],["woman","Woman"],["nonbinary","Non-binary or another gender identity"],["prefer_not","Prefer not to say"]],
+  demo_edu:"Highest level of education completed",
+  edu_opts:[
+    ["middle_or_below","Middle school or below"],
+    ["high_school","High school"],
+    ["some_college","Some college / vocational certificate, no degree"],
+    ["associate","Associate degree"],
+    ["bachelor","Bachelor's degree"],
+    ["master","Master's degree"],
+    ["doctoral","Doctoral degree or higher"]
+  ],
+  demo_income:"Household income, relative to the national average",
+  income_opts:[
+    ["well_below","Well below average"],
+    ["below","Below average"],
+    ["about_average","About average"],
+    ["above","Above average"],
+    ["well_above","Well above average"]
+  ],
+  demo_religion:"How important is religion in your life?",
+  slider_not_important:"Not important at all",
+  slider_very_important:"Very important",
+  demo_country:"Country or region of residence",
+  demo_country_ph:"e.g. United States",
+
+  better_lived:"Which of the following is closer to your own view of how to best live a life?",
+  person_a:"Person A",
+  person_b:"Person B",
+  person_c:"Person C",
+  person_d:"Person D",
+  label_a:"A",
+  label_b:"B",
+  ref_self_text:"lives mostly turned inward. She spends her time pursuing her own interests — exploring new things, learning, hiking, reading — and is immersed in her own growth and discovery. However, she has little connection or communication with others; relationships are not something she invests much in.",
+  ref_other_text:"lives mostly turned toward others. She has a loving family and meets close friends regularly, and her life is marked by warmth, trust, and being truly needed by the people around her. However, she doesn't spend much time developing her own interests or pursuits; personal growth is not something she invests much in.",
+  temp_present_text:"lives fully in the present. She focuses on what's happening right now, and gives her full attention to the immediate experience of her days — even though much of it is fleeting and won't last.",
+  temp_extended_text:"lives with an eye toward what comes after her. She focuses on building or contributing to things that will carry on beyond her own life, and puts her effort into things that will still matter when she's gone — even though the process itself is often difficult and demanding while she's living it.",
+
+  realization_eyebrow:"One more detail",
+  realization:{
+    experience:{ prompt:"Which activities do you find most rewarding?", options:[
+      ["exp_create_learn","Creating or learning something"],
+      ["exp_nature","Being in nature or around beauty"],
+      ["exp_adventure","Adventure and exploring the unknown"],
+      ["exp_sensory","Sensory and physical pleasures"],
+      ["exp_reflection","Quiet thought and reflection"]
+    ]},
+    recognition:{ prompt:"Which group matters to you most?", options:[
+      ["rec_partner","Partner or family members"],
+      ["rec_friends","Close friends"],
+      ["rec_colleagues","Professional circle or colleagues"],
+      ["rec_community","Community or neighborhood"],
+      ["rec_society","Society more broadly"]
+    ]},
+    creation:{ prompt:"What would you most like to leave behind?", options:[
+      ["cre_professional","A professional achievement or contribution"],
+      ["cre_creative","An artistic, written, or creative work"],
+      ["cre_mentee","People whose growth I helped (children, students, mentees)"],
+      ["cre_institution","An institution or organization I built"],
+      ["cre_change","A change in society"]
+    ]},
+    transcendence:{ prompt:"Which do you feel the strongest sense of belonging to?", options:[
+      ["tra_nation","My nation or country"],
+      ["tra_religion","My religion or faith"],
+      ["tra_natural_law","The natural order of the universe"],
+      ["tra_lineage","My family lineage and ancestors"]
+    ]}
+  },
+
+  rank_eyebrow:"Your priorities",
+  rank_heading:"If you had to prioritize, how would you rank the following in your own life — from 1 (your top priority) to 4 (your lowest priority)?",
+  rank_items:[
+    ["experience","Being fully absorbed in exploring and experiencing life's richness"],
+    ["recognition","Being truly seen, needed, and valued by the people I care about"],
+    ["creation","Turning my own ability into something of lasting value"],
+    ["transcendence","Helping carry forward the prosperity of something far greater than my own life"]
+  ],
+
+  shock_eyebrow:"A short passage",
+  shock_heading:"Please read the following carefully",
+  shock_cred_q:"How credible do you find this passage?",
+  cred_low:"Not at all", cred_high:"Completely",
+  shock_emo_q:"How uncomfortable did this passage make you feel?",
+  emo_low:"Not at all", emo_high:"Extremely",
+  shock_cards:{
+    experience:"Data from controlled studies show that the feeling of being deeply absorbed and fully alive is routinely manufactured by apps, games, and media, with nothing real in your life having changed at all. Most people cannot tell the difference. The moments that feel most vivid and genuine to you are not authentic experiences of your own.",
+    recognition:"Data show that people are wrong about how much they matter to those who say they value them. In most close relationships, the other person's mood and daily life return to normal within six months of losing contact. Being truly needed by someone is rare.",
+    creation:"Historical records show that the vast majority of people's work and achievements are forgotten within a generation after they die. What we build does not leave a lasting mark on the world.",
+    transcendence:"Historical records show that every nation, religion, and civilization that believed it would last forever has changed beyond recognition or disappeared, without exception. Whatever you belong to is not an exception."
+  },
+
+  desire_heading:"If you were completely free to choose how to live your life, how would you spend your time and energy?",
+  desire_first:"First", desire_second:"Second",
+  desire_ref_self:"On your own exploration, development, and self-realization",
+  desire_ref_other:"On loving and being loved by people or community",
+  desire_temp_present:"On what feels good to do or be around, while you're alive",
+  desire_temp_extended:"On what will still matter, after your life ends",
+
+  scenario_eyebrow:"A social trend",
+  scenario_prompt:"Two explanations have been offered for why this is happening. How credible do you find each one?",
+  expl_a:"Explanation A", expl_b:"Explanation B",
+  econ_intro:"In many countries, it has become harder to rise above the economic class you were born into. Family background now matters more than personal effort. Many people feel that no matter how hard they try, they cannot get ahead.",
+  econ_structural:"This is caused by big economic forces: technology, globalization, and the concentration of wealth. No single group is responsible, and the trend is hard to reverse.",
+  econ_elite:"This is not inevitable. A small group of economic elites has used political influence to block ordinary people's path upward, taking wealth and opportunity for themselves. Holding them accountable could change this.",
+  cult_intro:"As people move across borders more than ever, traditional cultures and ways of life are disappearing in many places. Many people find it hard to pass on the community and values they grew up with to the next generation.",
+  cult_structural:"This is a natural result of globalization, technology, and migration. It affects many cultures worldwide, has no specific responsible party, and is hard to reverse.",
+  cult_elite:"This is not happening naturally. Large numbers of newcomers bring values that clash with local culture, while elites and media fail to protect it, and even call anyone who tries to preserve tradition backward. Without active defense, our cultural identity could disappear within a generation or two.",
+
+  mobility_eyebrow:"Looking back a generation",
+  mobility_heading:"Compared with your parents' generation, is it easier or harder for you to get ahead through your own effort?",
+  mobility_opts:[
+    ["much_harder","Much harder"],["somewhat_harder","Somewhat harder"],
+    ["same","About the same"],["somewhat_easier","Somewhat easier"],["much_easier","Much easier"]
+  ],
+
+  setback_eyebrow:"The last five years",
+  setback_heading:"In the past 5 years, have you or an immediate family member experienced a significant job loss, business failure, or major financial setback?",
+  setback_opts:[["yes","Yes"],["no","No"]],
+
+  enke_eyebrow:"A hypothetical choice",
+  enke_heading:"Imagine you have been given $100 that you must give away completely — you cannot keep any of it for yourself.",
+  enke_body:"You must split it between two people: a member of your own family and a randomly selected stranger who lives in your country. Assume both people are equally well-off financially, and neither will ever find out the money came from you.",
+  enke_q:"How would you split the $100?",
+  enke_low:"All to family member", enke_high:"All to stranger",
+
+  political_eyebrow:"Politics",
+  political_heading:"In political matters, people talk of \u201cthe left\u201d and \u201cthe right.\u201d Where would you place yourself?",
+  political_low:"Left", political_high:"Right",
+
+  meaning_eyebrow:"Your life, overall",
+  meaning_heading:"Overall, how much meaning do you feel your life has?",
+  meaning_low:"Very little meaning", meaning_high:"A great deal of meaning",
+
+  happy_eyebrow:"One last thing",
+  happy_heading:"Overall, how happy would you say you are?",
+  happy_low:"Very unhappy", happy_high:"Very happy",
+
+  debrief_eyebrow:"Thank you",
+  debrief_title:"What this was about",
+  debrief_p1:"The passage you read was written for this study and phrased to sound as authoritative and convincing as possible. It does not reflect a real, established research finding, and should not be taken as fact. Different participants read different passages; the aim was to see how people react when ideas about what gives life meaning are directly challenged. This study is about how people think about meaning and social attitudes more broadly.",
+  debrief_p2:"If anything in this survey raised difficult feelings — especially around death, lasting impact, or whether your relationships and achievements are real — please consider reaching out to a counselor or support service in your area.",
+  debrief_fail:"Your responses could not be automatically submitted due to a connection issue. Please use the download link below to save a backup copy, and contact the researcher via Prolific.",
+  debrief_code_intro:"Thank you for your participation. Click below to return to Prolific and confirm your submission:",
+  debrief_return_button:"Return to Prolific",
+  debrief_code_instruction:"If the button above doesn't work, manually enter this completion code on the Prolific submission page:",
+  debrief_close:"You may now close this window.",
+  download_backup:"Download a backup copy of your responses"
+},
+zh:{
+  nav_continue:"继续",
+  nav_agree_begin:"我同意——开始问卷",
+  nav_finish:"完成问卷",
+  nav_submitting:"正在提交…",
+  qnum:(n,m)=>`第 ${n} 题，共 ${m} 题`,
+  slider_midpoint:"请移动滑杆——不能停留在正中间的位置。",
+  rank_hint:"请按您排序的顺序依次点击（第一次点击 = 第1名，以此类推）。再次点击可取消。",
+
+  consent_eyebrow:"开始之前",
+  consent_title:"社会态度与人生观",
+  consent_p1:"这是一项关于社会态度、以及人们如何看待周围世界的研究问卷。答案没有对错之分。您的回答将严格保密，仅用于研究目的。问卷进行到一半时，您会读到一段为本研究专门撰写的短文，完整说明会在问卷结尾给出。您可以随时退出。",
+  consent_p2:"本问卷大约需要10分钟完成。请一次性完成，并确保设备网络连接稳定。问卷结束后，您会收到一个完成码——请复制该完成码，并粘贴到Prolific的研究页面上，以确认提交并领取报酬。如果遇到任何技术问题，请在Prolific上退回此次提交，不要让它处于未完成状态。",
+
+  demo_eyebrow:"关于您",
+  demo_h2:"几个背景问题",
+  demo_lede:"这些信息帮助我们了解参与者的基本情况，不会用于识别您的个人身份。",
+  demo_age:"年龄",
+  demo_age_ph:"您的年龄（周岁）",
+  demo_gender:"性别",
+  gender_opts:[["man","男性"],["woman","女性"],["nonbinary","非二元或其他性别认同"],["prefer_not","不愿透露"]],
+  demo_edu:"您完成的最高教育程度",
+  edu_opts:[
+    ["middle_or_below","初中及以下"],
+    ["high_school","高中"],
+    ["some_college","大专 / 职业证书，未获得学位"],
+    ["associate","副学士学位"],
+    ["bachelor","学士学位"],
+    ["master","硕士学位"],
+    ["doctoral","博士及以上"]
+  ],
+  demo_income:"您家庭收入相对于全国平均水平",
+  income_opts:[
+    ["well_below","远低于平均水平"],
+    ["below","低于平均水平"],
+    ["about_average","大致持平"],
+    ["above","高于平均水平"],
+    ["well_above","远高于平均水平"]
+  ],
+  demo_religion:"宗教在您生活中的重要程度如何？",
+  slider_not_important:"完全不重要",
+  slider_very_important:"非常重要",
+  demo_country:"您目前居住的国家或地区",
+  demo_country_ph:"例如：中国",
+
+  better_lived:"以下哪一种更接近您自己对于应该如何度过一生的理解？",
+  person_a:"甲",
+  person_b:"乙",
+  person_c:"丙",
+  person_d:"丁",
+  label_a:"A",
+  label_b:"B",
+  ref_self_text:"过着以自我为中心的生活。她把时间花在自己感兴趣的事情上——探索新事物、学习、徒步、阅读——沉浸在自己的成长和发现之中。不过，她与他人的联系和交流很少，人际关系不是她投入很多心力的地方。",
+  ref_other_text:"过着以他人为中心的生活。她有一个充满爱的家庭，经常和亲密的朋友见面，生活中充满了温暖、信任，以及真正被身边人需要的感觉。不过，她没有花很多时间发展自己的兴趣或追求，个人成长不是她投入很多心力的地方。",
+  temp_present_text:"完全活在当下。她专注于此刻正在发生的事情，全身心投入在每一天的即时体验中——尽管这些体验大多转瞬即逝、不会持续下去。",
+  temp_extended_text:"更着眼于自己身后的事。她专注于打造或贡献那些会延续到她生命之后的东西，把精力投入在那些等她离世后依然重要的事情上——尽管这个过程本身在她活着的时候常常是艰难而费力的。",
+
+  realization_eyebrow:"再多了解一点",
+  realization:{
+    experience:{ prompt:"您觉得哪些活动最有回报感？", options:[
+      ["exp_create_learn","创造或学习新事物"],
+      ["exp_nature","身处自然或美的环境中"],
+      ["exp_adventure","冒险与探索未知"],
+      ["exp_sensory","感官与身体上的愉悦"],
+      ["exp_reflection","安静的思考与反思"]
+    ]},
+    recognition:{ prompt:"哪一个群体对您来说最重要？", options:[
+      ["rec_partner","伴侣或家人"],
+      ["rec_friends","挚友"],
+      ["rec_colleagues","职业圈子或同事"],
+      ["rec_community","社区或邻里"],
+      ["rec_society","更广泛的社会"]
+    ]},
+    creation:{ prompt:"您最希望留下什么？", options:[
+      ["cre_professional","一项职业成就或贡献"],
+      ["cre_creative","一件艺术、写作等创造性作品"],
+      ["cre_mentee","我帮助成长的人（子女、学生、后辈）"],
+      ["cre_institution","我建立的机构或组织"],
+      ["cre_change","社会层面的变革"]
+    ]},
+    transcendence:{ prompt:"您对哪一项有最强烈的归属感？", options:[
+      ["tra_nation","我的国家或民族"],
+      ["tra_religion","我的宗教或信仰"],
+      ["tra_natural_law","宇宙的自然秩序"],
+      ["tra_lineage","我的家族血脉与祖先"]
+    ]}
+  },
+
+  rank_eyebrow:"您的优先顺序",
+  rank_heading:"如果必须排出优先顺序，您会如何为以下几项排序——从1（您最优先重视的）到4（您最不优先的）？",
+  rank_items:[
+    ["experience","全心投入地探索和体验人生的丰富"],
+    ["recognition","真正被在意的人看见、需要、重视"],
+    ["creation","把自己的能力转化为持久的价值"],
+    ["transcendence","帮助推动一件远比自己的生命更宏大的事业走向兴盛"]
+  ],
+
+  shock_eyebrow:"一段短文",
+  shock_heading:"请仔细阅读以下内容",
+  shock_cred_q:"您认为这段话的可信度如何？",
+  cred_low:"完全不可信", cred_high:"完全可信",
+  shock_emo_q:"这段话让您感到多不舒服？",
+  emo_low:"完全没有", emo_high:"非常强烈",
+  shock_cards:{
+    experience:"对照实验的数据表明，那种全身心投入、感觉自己真正活着的感受，常常是被应用程序、游戏和媒体人为制造出来的，而你的生活本身并没有发生任何真实的改变。大多数人根本无法分辨其中的差别。那些让你觉得最鲜活、最真实的时刻，其实并不是你自己真实的体验。",
+    recognition:"数据表明，人们常常高估了自己在那些声称看重自己的人心目中的分量。在大多数亲密关系中，一旦失去联系，对方的情绪和日常生活会在六个月内恢复如常。真正被某个人需要，其实非常罕见。",
+    creation:"历史记录显示，绝大多数人的工作和成就，在他们去世后一代人的时间里就会被遗忘。我们所建造的东西，并不会在这个世界上留下持久的印记。",
+    transcendence:"历史记录显示，每一个曾经相信自己会永远延续的国家、宗教和文明，无一例外，最终都已改变到面目全非，或者彻底消失。无论你归属于什么，都不会是例外。"
+  },
+
+  desire_heading:"如果您可以完全自由地选择如何生活，您会把时间和精力花在：",
+  desire_first:"第一题", desire_second:"第二题",
+  desire_ref_self:"自己的探索、成长与自我实现上",
+  desire_ref_other:"爱与被人、社群所爱上",
+  desire_temp_present:"活着时让自己感觉良好的事情上",
+  desire_temp_extended:"您离世之后依然重要的事情上",
+
+  scenario_eyebrow:"一种社会趋势",
+  scenario_prompt:"针对这一现象，有两种解释。您认为每一种解释的可信度如何？",
+  expl_a:"解释A", expl_b:"解释B",
+  econ_intro:"在许多国家，想要超越自己出身的经济阶层正变得越来越难。家庭背景如今比个人努力更能决定一个人的处境。许多人觉得，无论自己多么努力，都无法真正向上流动。",
+  econ_structural:"这是由宏观经济力量造成的：技术变革、全球化，以及财富的集中。没有哪一个群体应为此负责，这一趋势也很难逆转。",
+  econ_elite:"这并非不可避免。是一小部分经济精英利用政治影响力，阻挡了普通人向上流动的道路，把财富和机会占为己有。追究他们的责任，就能改变这一局面。",
+  cult_intro:"随着人口跨境流动比以往任何时候都更加频繁，许多地方的传统文化和生活方式正在消失。许多人发现，很难把自己成长中所在的社区和价值观传递给下一代。",
+  cult_structural:"这是全球化、技术和人口迁移的自然结果。它影响着全世界许多文化，没有特定的责任方，也很难逆转。",
+  cult_elite:"这并不是自然发生的。大批新移民带来了与本地文化相冲突的价值观，而精英和媒体不仅没有保护本地文化，甚至把任何试图维护传统的人称为守旧落后。如果不主动捍卫，我们的文化认同可能在一两代人之内就会消失。",
+
+  mobility_eyebrow:"回望上一代",
+  mobility_heading:"与您父母那一代相比，您靠自己的努力向上发展是更容易了，还是更难了？",
+  mobility_opts:[
+    ["much_harder","困难得多"],["somewhat_harder","有些困难"],
+    ["same","差不多"],["somewhat_easier","容易一些"],["much_easier","容易得多"]
+  ],
+
+  setback_eyebrow:"过去五年",
+  setback_heading:"在过去五年里，您本人或您的直系亲属是否经历过重大的失业、生意失败或严重的经济挫折？",
+  setback_opts:[["yes","是"],["no","否"]],
+
+  enke_eyebrow:"一个假设性的选择",
+  enke_heading:"假设有人给了您100美元，您必须把它全部送出去——不能给自己留下任何一部分。",
+  enke_body:"您必须把这笔钱分给两个人：您的一位家人，和一位随机选出的、居住在您所在国家的陌生人。假设这两个人经济状况相同，而且他们都不会知道这笔钱是您给的。",
+  enke_q:"您会如何分配这100美元？",
+  enke_low:"全部给家人", enke_high:"全部给陌生人",
+
+  political_eyebrow:"政治",
+  political_heading:"在政治议题上，人们常说\u201c左派\u201d和\u201c右派\u201d。您会把自己放在哪个位置？",
+  political_low:"左", political_high:"右",
+
+  meaning_eyebrow:"您的人生，总体而言",
+  meaning_heading:"总的来说，您觉得自己的人生有多少意义？",
+  meaning_low:"意义非常少", meaning_high:"意义非常多",
+
+  happy_eyebrow:"最后一个问题",
+  happy_heading:"总的来说，您觉得自己有多快乐？",
+  happy_low:"非常不快乐", happy_high:"非常快乐",
+
+  debrief_eyebrow:"感谢您",
+  debrief_title:"这项研究的真正内容",
+  debrief_p1:"您读到的那段短文是专门为本研究撰写的，措辞力求显得权威、有说服力。它并不代表任何真实、已确立的研究发现，不应被当作事实看待。不同参与者读到的短文各不相同，目的是观察当人们关于人生意义的想法受到直接挑战时会如何反应。本研究探讨的是人们如何看待人生意义，以及更广泛的社会态度。",
+  debrief_p2:"如果这份问卷中的任何内容让您产生了不好的感受——尤其是关于死亡、是否能留下持久影响、或者您的人际关系和成就是否真实——请考虑联系您所在地区的心理咨询师或支持服务机构。",
+  debrief_fail:"由于网络连接问题，您的回答未能自动提交。请使用下方的下载链接保存一份备份，并通过Prolific联系研究者。",
+  debrief_code_intro:"感谢您的参与。请点击下方按钮返回Prolific以确认提交：",
+  debrief_return_button:"返回Prolific",
+  debrief_code_instruction:"如果上方按钮无法使用，请在Prolific的提交页面手动输入这个完成码：",
+  debrief_close:"您现在可以关闭此窗口了。",
+  download_backup:"下载您回答的备份文件"
+}
+};
+const S = STR[LANG];
+
+/* ======================================================================
+   DATA MODEL — semantic keys only, never surface/UI position labels.
+   ====================================================================== */
+const DATA = {
+  meta:{
+    language:LANG,
+    prolific_pid:null, study_id:null, session_id:null, client_session_id:null,
+    started_at:new Date().toISOString(),
+    completion_code:null,
+    is_complete:false,
+    last_checkpoint:null
+  },
+  demographics:{ age:null, gender:null, education:null, income:null,
+                 religion_importance:null, country:null },
+  module2:{
+    third_party_referent_score:null,
+    third_party_temporal_score:null,
+    third_party_order_referent_AB:null,
+    third_party_order_temporal_AB:null,
+    realization_domain_shown:null,
+    realization_selection:null,
+    rank:{ experience:null, recognition:null, creation:null, transcendence:null },
+    rank_presentation_order:null
+  },
+  routing:{ quadrant:null, shock_assignment:null, shock_domain:null },
+  module3:{
+    shock_credibility:null, shock_emotion:null,
+    postshock_desire_referent_score:null,
+    postshock_desire_temporal_score:null
+  },
+  module4:{
+    economic_structural_credibility:null, economic_elite_blame_credibility:null,
+    cultural_structural_credibility:null, cultural_elite_blame_credibility:null,
+    scenario_order:null, economic_explanation_order:null, cultural_explanation_order:null
+  },
+  attitudes:{
+    mobility_vs_parents:null, financial_setback_5yr:null, political_left_right:null,
+    enke_allocation_score:null, meaning_intensity:null, happiness:null
+  },
+  timing:{}
+};
+
+function rand(){ return Math.random(); }
+function coinFlip(){ return rand() < 0.5; }
+function genCode(){
+  const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let s=''; for(let i=0;i<8;i++) s+=chars[Math.floor(rand()*chars.length)];
+  return s;
+}
+DATA.meta.prolific_pid = qs('PROLIFIC_PID');
+DATA.meta.study_id = qs('STUDY_ID');
+DATA.meta.session_id = qs('SESSION_ID');
+// Prolific's SESSION_ID is the natural key for upserting a respondent's row
+// across checkpoints. When testing outside Prolific it's absent, so fall
+// back to a locally generated id — still stable for the lifetime of this
+// page load, which is all a single respondent's session ever needs.
+DATA.meta.client_session_id = DATA.meta.session_id || ('local_' + genCode() + '_' + Date.now());
+
+const OPPOSITE = { experience:'transcendence', transcendence:'experience',
+                    recognition:'creation', creation:'recognition' };
+
+/* ======================================================================
+   FLOW ENGINE (with per-screen id for timing, and page-time logging)
+   ====================================================================== */
+let current = 0;
+let FLOW = [];
+let screenEnteredAt = Date.now();
+const screensEl = document.getElementById('screens');
+const progressBar = document.getElementById('progress-bar');
+
+function leaveScreen(){
+  const elapsed = Date.now() - screenEnteredAt;
+  const id = (FLOW[current] && FLOW[current].id) || ('screen_'+current);
+  DATA.timing[id+'_ms'] = elapsed;
+}
+function render(){
+  const step = FLOW[current];
+  const totalQuestions = FLOW.length - 1;
+  const qnumHtml = current > 0
+    ? '<div class="qnum chrome">'+S.qnum(current, totalQuestions)+'</div>'
+    : '';
+  screensEl.innerHTML = '<div class="screen active" id="s-'+current+'">'+qnumHtml+step.html()+'</div>';
+  progressBar.style.width = (100*current/(FLOW.length-1))+'%';
+  screenEnteredAt = Date.now();
+  step.attach(document.getElementById('s-'+current));
+  window.scrollTo(0,0);
+}
+function goNext(){
+  leaveScreen();
+  if(FLOW[current] && FLOW[current].checkpoint){
+    DATA.meta.last_checkpoint = FLOW[current].id;
+    submitCheckpoint();
+  }
+  if(current < FLOW.length-1){ current++; render(); }
+}
+function nextBtn(label){
+  label = label || S.nav_continue;
+  return '<div class="btn-row"><button class="next" id="nextBtn" disabled>'+label+'</button></div><div class="hint" id="hint"></div>';
+}
+function enableNext(msg){
+  const b=document.getElementById('nextBtn');
+  if(b){ b.disabled=false; }
+  const h=document.getElementById('hint');
+  if(h){ h.textContent = msg||''; }
+}
+function escAttr(str){ return String(str).replace(/"/g,'&quot;'); }
+function sliderBlock(id, leftLabel, rightLabel){
+  const aria = escAttr(leftLabel+' to '+rightLabel);
+  return '<div class="slider-block">'+
+    '<div class="slider-labels"><span>'+leftLabel+'</span><span>'+rightLabel+'</span></div>'+
+    '<input type="range" min="0" max="100" value="50" step="1" id="'+id+'" class="untouched" aria-label="'+aria+'">'+
+    '</div>';
+}
+// For sliders whose two ends are full sentences rather than short labels:
+// show the sentences as normal-size text first, then a slider below with
+// just short "A"/"B" end-nodes, instead of cramming long sentences into
+// the small slider-label row.
+function statementSliderBlock(id, textA, textB){
+  const aria = escAttr(S.label_a+': '+textA+' — '+S.label_b+': '+textB);
+  return '<p class="statement-line"><strong>'+S.label_a+'</strong> — '+textA+'</p>'+
+    '<p class="statement-line"><strong>'+S.label_b+'</strong> — '+textB+'</p>'+
+    '<div class="slider-block">'+
+    '<div class="slider-labels"><span>'+S.label_a+'</span><span>'+S.label_b+'</span></div>'+
+    '<input type="range" min="0" max="100" value="50" step="1" id="'+id+'" class="untouched" aria-label="'+aria+'">'+
+    '</div>';
+}
+function wireSlider(id, onValid){
+  const el = document.getElementById(id);
+  el.addEventListener('input', function(){
+    el.classList.remove('untouched');
+    const v = parseInt(el.value,10);
+    if(v === 50){ enableNext(S.slider_midpoint); }
+    else { onValid(v); enableNext(''); }
+  });
+}
+function wireSingleChoice(listId, options, onPick){
+  const list = document.getElementById(listId);
+  list.querySelectorAll('.choice-item').forEach(item=>{
+    item.addEventListener('click', ()=>{
+      list.querySelectorAll('.choice-item').forEach(i=>i.classList.remove('selected'));
+      item.classList.add('selected');
+      onPick(item.dataset.value);
+    });
+  });
+}
+
+/* ====================== SCREEN: Consent ====================== */
+FLOW.push({ id:'consent', html:()=>`
+    <div class="eyebrow chrome">${S.consent_eyebrow}</div>
+    <h1>${S.consent_title}</h1>
+    <div class="consent-box">
+      <p>${S.consent_p1}</p>
+      <p>${S.consent_p2}</p>
+    </div>
+    ${nextBtn(S.nav_agree_begin)}
+  `,
+  attach:()=>{
+    enableNext('');
+    document.getElementById('nextBtn').addEventListener('click', goNext);
+  }
+});
+
+/* ====================== SCREEN: Demographics ====================== */
+FLOW.push({ id:'demographics', checkpoint:true, html:()=>`
+    <div class="eyebrow chrome">${S.demo_eyebrow}</div>
+    <h2>${S.demo_h2}</h2>
+    <p class="lede">${S.demo_lede}</p>
+    <div class="card"><h3>${S.demo_age}</h3>
+      <input type="number" id="d_age" min="18" max="100" placeholder="${S.demo_age_ph}">
+    </div>
+    <div class="card"><h3>${S.demo_gender}</h3>
+      <ul class="choice-list" id="d_gender">
+        ${S.gender_opts.map(o=>`<li class="choice-item" tabindex="0" role="button" data-value="${o[0]}">${o[1]}</li>`).join('')}
+      </ul>
+    </div>
+    <div class="card"><h3>${S.demo_edu}</h3>
+      <ul class="choice-list" id="d_edu">
+        ${S.edu_opts.map(o=>`<li class="choice-item" tabindex="0" role="button" data-value="${o[0]}">${o[1]}</li>`).join('')}
+      </ul>
+    </div>
+    <div class="card"><h3>${S.demo_income}</h3>
+      <ul class="choice-list" id="d_income">
+        ${S.income_opts.map(o=>`<li class="choice-item" tabindex="0" role="button" data-value="${o[0]}">${o[1]}</li>`).join('')}
+      </ul>
+    </div>
+    <div class="card"><h3>${S.demo_religion}</h3>
+      ${sliderBlock('d_religion', S.slider_not_important, S.slider_very_important)}
+    </div>
+    <div class="card"><h3>${S.demo_country}</h3>
+      <input type="text" id="d_country" placeholder="${S.demo_country_ph}">
+    </div>
+    ${nextBtn()}
+  `,
+  attach:()=>{
+    const checks = {};
+    function checkAll(){
+      const age = document.getElementById('d_age').value;
+      const country = document.getElementById('d_country').value.trim();
+      const ok = age && checks.gender && checks.education && checks.income && checks.religion && country;
+      if(ok) enableNext('');
+    }
+    document.getElementById('d_age').addEventListener('input', checkAll);
+    document.getElementById('d_country').addEventListener('input', checkAll);
+    wireSingleChoice('d_gender', S.gender_opts, v=>{ DATA.demographics.gender=v; checks.gender=true; checkAll(); });
+    wireSingleChoice('d_edu', S.edu_opts, v=>{ DATA.demographics.education=v; checks.education=true; checkAll(); });
+    wireSingleChoice('d_income', S.income_opts, v=>{ DATA.demographics.income=v; checks.income=true; checkAll(); });
+    wireSlider('d_religion', v=>{ DATA.demographics.religion_importance=v; checks.religion=true; checkAll(); });
+    document.getElementById('nextBtn').addEventListener('click', ()=>{
+      DATA.demographics.age = parseInt(document.getElementById('d_age').value,10);
+      DATA.demographics.country = document.getElementById('d_country').value.trim();
+      goNext();
+    });
+  }
+});
+
+/* ====================== SCREEN: Third-party — REFERENT axis ====================== */
+const REFERENT_A_IS_SELF = coinFlip();
+FLOW.push({ id:'third_party_referent', html:()=>{
+    const aText = REFERENT_A_IS_SELF ? S.ref_self_text : S.ref_other_text;
+    const bText = REFERENT_A_IS_SELF ? S.ref_other_text : S.ref_self_text;
+    return `
+      <h2>${S.better_lived}</h2>
+      <div class="card"><h3>${S.person_a}</h3><p>${S.person_a} ${aText}</p></div>
+      <div class="card"><h3>${S.person_b}</h3><p>${S.person_b} ${bText}</p></div>
+      ${sliderBlock('tp_referent', S.person_a, S.person_b)}
+      ${nextBtn()}
+    `;
+  },
+  attach:()=>{
+    wireSlider('tp_referent', v=>{
+      DATA.module2.third_party_referent_score = REFERENT_A_IS_SELF ? v : (100-v);
+      DATA.module2.third_party_order_referent_AB = REFERENT_A_IS_SELF ? 'A=self' : 'A=other';
+    });
+    document.getElementById('nextBtn').addEventListener('click', goNext);
+  }
+});
+
+/* ====================== SCREEN: Third-party — TEMPORAL axis ====================== */
+const TEMPORAL_A_IS_PRESENT = coinFlip();
+FLOW.push({ id:'third_party_temporal', html:()=>{
+    const aText = TEMPORAL_A_IS_PRESENT ? S.temp_present_text : S.temp_extended_text;
+    const bText = TEMPORAL_A_IS_PRESENT ? S.temp_extended_text : S.temp_present_text;
+    return `
+      <h2>${S.better_lived}</h2>
+      <div class="card"><h3>${S.person_c}</h3><p>${S.person_c} ${aText}</p></div>
+      <div class="card"><h3>${S.person_d}</h3><p>${S.person_d} ${bText}</p></div>
+      ${sliderBlock('tp_temporal', S.person_c, S.person_d)}
+      ${nextBtn()}
+    `;
+  },
+  attach:()=>{
+    wireSlider('tp_temporal', v=>{
+      DATA.module2.third_party_temporal_score = TEMPORAL_A_IS_PRESENT ? v : (100-v);
+      DATA.module2.third_party_order_temporal_AB = TEMPORAL_A_IS_PRESENT ? 'C=present' : 'C=extended';
+    });
+    document.getElementById('nextBtn').addEventListener('click', ()=>{
+      const r = DATA.module2.third_party_referent_score;
+      const t = DATA.module2.third_party_temporal_score;
+      const other = r > 50, extended = t > 50;
+      let quadrant;
+      if(!other && !extended) quadrant = 'experience';
+      else if(other && !extended) quadrant = 'recognition';
+      else if(!other && extended) quadrant = 'creation';
+      else quadrant = 'transcendence';
+      DATA.routing.quadrant = (FORCE_QUADRANT && OPPOSITE[FORCE_QUADRANT]) ? FORCE_QUADRANT : quadrant;
+      DATA.routing.shock_assignment = (FORCE_SHOCK === 'own' || FORCE_SHOCK === 'opposite')
+        ? FORCE_SHOCK : (coinFlip() ? 'own' : 'opposite');
+      DATA.routing.shock_domain = DATA.routing.shock_assignment === 'own'
+        ? DATA.routing.quadrant : OPPOSITE[DATA.routing.quadrant];
+      goNext();
+    });
+  }
+});
+
+/* ====================== SCREEN: Realization checklist ====================== */
+FLOW.push({ id:'realization', html:()=>{
+    const r = S.realization[DATA.routing.quadrant];
+    return `
+      <div class="eyebrow chrome">${S.realization_eyebrow}</div>
+      <h2>${r.prompt}</h2>
+      <ul class="choice-list" id="realizationList">
+        ${r.options.map(o=>`<li class="choice-item" tabindex="0" role="button" data-value="${o[0]}">${o[1]}</li>`).join('')}
+      </ul>
+      ${nextBtn()}
+    `;
+  },
+  attach:()=>{
+    DATA.module2.realization_domain_shown = DATA.routing.quadrant;
+    wireSingleChoice('realizationList', S.realization[DATA.routing.quadrant].options, v=>{
+      DATA.module2.realization_selection = v;
+      enableNext('');
+    });
+    document.getElementById('nextBtn').addEventListener('click', goNext);
+  }
+});
+
+/* ====================== SCREEN: Ranking (verification) ====================== */
+let RANK_ORDER = [...S.rank_items];
+for(let i=RANK_ORDER.length-1;i>0;i--){
+  const j=Math.floor(rand()*(i+1));
+  [RANK_ORDER[i],RANK_ORDER[j]]=[RANK_ORDER[j],RANK_ORDER[i]];
+}
+FLOW.push({ id:'rank', checkpoint:true, html:()=>`
+    <div class="eyebrow chrome">${S.rank_eyebrow}</div>
+    <h2>${S.rank_heading}</h2>
+    <p class="lede">${S.rank_hint}</p>
+    <ul class="rank-list" id="rankList">
+      ${RANK_ORDER.map(it=>`<li class="rank-item" tabindex="0" role="button" data-key="${it[0]}"><span class="rank-badge">–</span><span>${it[1]}</span></li>`).join('')}
+    </ul>
+    ${nextBtn()}
+  `,
+  attach:()=>{
+    const list = document.getElementById('rankList');
+    let order = [];
+    function refresh(){
+      list.querySelectorAll('.rank-item').forEach(li=>{
+        const pos = order.indexOf(li.dataset.key);
+        const badge = li.querySelector('.rank-badge');
+        if(pos>-1){ badge.textContent=(pos+1); li.classList.add('ranked'); }
+        else { badge.textContent='–'; li.classList.remove('ranked'); }
+      });
+      if(order.length===4){
+        S.rank_items.forEach(it=>{ DATA.module2.rank[it[0]] = order.indexOf(it[0])+1; });
+        DATA.module2.rank_presentation_order = RANK_ORDER.map(i=>i[0]).join('>');
+        enableNext('');
+      } else { enableNext(''); }
+    }
+    list.querySelectorAll('.rank-item').forEach(li=>{
+      li.addEventListener('click', ()=>{
+        const key = li.dataset.key;
+        const pos = order.indexOf(key);
+        if(pos>-1){ order.splice(pos,1); } else { order.push(key); }
+        refresh();
+      });
+    });
+    refresh();
+    document.getElementById('nextBtn').addEventListener('click', goNext);
+  }
+});
+
+/* ====================== SCREEN: Shock passage ====================== */
+FLOW.push({ id:'shock', html:()=>`
+    <div class="eyebrow chrome">${S.shock_eyebrow}</div>
+    <h2>${S.shock_heading}</h2>
+    <div class="card"><p style="font-size:18px;">${S.shock_cards[DATA.routing.shock_domain]}</p></div>
+    <div class="card"><h3>${S.shock_cred_q}</h3>${sliderBlock('shock_cred', S.cred_low, S.cred_high)}</div>
+    <div class="card"><h3>${S.shock_emo_q}</h3>${sliderBlock('shock_emo', S.emo_low, S.emo_high)}</div>
+    ${nextBtn()}
+  `,
+  attach:()=>{
+    let ok1=false, ok2=false;
+    wireSlider('shock_cred', v=>{ DATA.module3.shock_credibility=v; ok1=true; if(ok1&&ok2) enableNext(''); });
+    wireSlider('shock_emo', v=>{ DATA.module3.shock_emotion=v; ok2=true; if(ok1&&ok2) enableNext(''); });
+    document.getElementById('nextBtn').addEventListener('click', goNext);
+  }
+});
+
+/* ====================== SCREEN: Post-shock desire (single outcome measurement) ====================== */
+const POST_REF_A_IS_SELF = coinFlip();
+const POST_TEMP_A_IS_PRESENT = coinFlip();
+FLOW.push({ id:'postshock_desire', checkpoint:true, html:()=>{
+    const refA = POST_REF_A_IS_SELF ? S.desire_ref_self : S.desire_ref_other;
+    const refB = POST_REF_A_IS_SELF ? S.desire_ref_other : S.desire_ref_self;
+    const tempA = POST_TEMP_A_IS_PRESENT ? S.desire_temp_present : S.desire_temp_extended;
+    const tempB = POST_TEMP_A_IS_PRESENT ? S.desire_temp_extended : S.desire_temp_present;
+    return `
+      <h2>${S.desire_heading}</h2>
+      <div class="card"><h3>${S.desire_first}</h3>${statementSliderBlock('post_ref', refA, refB)}</div>
+      <div class="card"><h3>${S.desire_second}</h3>${statementSliderBlock('post_temp', tempA, tempB)}</div>
+      ${nextBtn()}
+    `;
+  },
+  attach:()=>{
+    let ok1=false, ok2=false;
+    wireSlider('post_ref', v=>{
+      DATA.module3.postshock_desire_referent_score = POST_REF_A_IS_SELF ? v : (100-v);
+      ok1=true; if(ok1&&ok2) enableNext('');
+    });
+    wireSlider('post_temp', v=>{
+      DATA.module3.postshock_desire_temporal_score = POST_TEMP_A_IS_PRESENT ? v : (100-v);
+      ok2=true; if(ok1&&ok2) enableNext('');
+    });
+    document.getElementById('nextBtn').addEventListener('click', goNext);
+  }
+});
+
+/* ====================== SCREEN: Module 4 scenarios ====================== */
+const SCENARIO_ORDER = coinFlip() ? ['economic','cultural'] : ['cultural','economic'];
+const ECON_EXPL_A_IS_STRUCTURAL = coinFlip();
+const CULT_EXPL_A_IS_STRUCTURAL = coinFlip();
+DATA.module4.scenario_order = SCENARIO_ORDER.join('>');
+DATA.module4.economic_explanation_order = ECON_EXPL_A_IS_STRUCTURAL ? 'A=structural' : 'A=elite_blame';
+DATA.module4.cultural_explanation_order = CULT_EXPL_A_IS_STRUCTURAL ? 'A=structural' : 'A=elite_blame';
+
+function scenarioScreen(kind){
+  const isEcon = kind==='economic';
+  const intro = isEcon ? S.econ_intro : S.cult_intro;
+  const structural = isEcon ? S.econ_structural : S.cult_structural;
+  const eliteBlame = isEcon ? S.econ_elite : S.cult_elite;
+  const aIsStructural = isEcon ? ECON_EXPL_A_IS_STRUCTURAL : CULT_EXPL_A_IS_STRUCTURAL;
+  const explA = aIsStructural ? structural : eliteBlame;
+  const explB = aIsStructural ? eliteBlame : structural;
+  const idA = kind+'_explA', idB = kind+'_explB';
+  return { id:'module4_'+kind, html:()=>`
+      <div class="eyebrow chrome">${S.scenario_eyebrow}</div>
+      <h2>${intro}</h2>
+      <p>${S.scenario_prompt}</p>
+      <div class="card"><h3>${S.expl_a}</h3><p>${explA}</p>${sliderBlock(idA, S.cred_low, S.cred_high)}</div>
+      <div class="card"><h3>${S.expl_b}</h3><p>${explB}</p>${sliderBlock(idB, S.cred_low, S.cred_high)}</div>
+      ${nextBtn()}
+    `,
+    attach:()=>{
+      let ok1=false, ok2=false;
+      wireSlider(idA, v=>{
+        if(aIsStructural){ DATA.module4[kind+'_structural_credibility']=v; }
+        else { DATA.module4[kind+'_elite_blame_credibility']=v; }
+        ok1=true; if(ok1&&ok2) enableNext('');
+      });
+      wireSlider(idB, v=>{
+        if(aIsStructural){ DATA.module4[kind+'_elite_blame_credibility']=v; }
+        else { DATA.module4[kind+'_structural_credibility']=v; }
+        ok2=true; if(ok1&&ok2) enableNext('');
+      });
+      document.getElementById('nextBtn').addEventListener('click', goNext);
+    }
+  };
+}
+SCENARIO_ORDER.forEach((kind, idx)=>{
+  const screen = scenarioScreen(kind);
+  if(idx === SCENARIO_ORDER.length-1){ screen.checkpoint = true; }
+  FLOW.push(screen);
+});
+
+/* ====================== SCREEN: Mobility ====================== */
+FLOW.push({ id:'mobility', html:()=>`
+    <div class="eyebrow chrome">${S.mobility_eyebrow}</div>
+    <h2>${S.mobility_heading}</h2>
+    <ul class="choice-list" id="mobility_list">
+      ${S.mobility_opts.map(o=>`<li class="choice-item" tabindex="0" role="button" data-value="${o[0]}">${o[1]}</li>`).join('')}
+    </ul>
+    ${nextBtn()}
+  `,
+  attach:()=>{
+    wireSingleChoice('mobility_list', S.mobility_opts, v=>{ DATA.attitudes.mobility_vs_parents=v; enableNext(''); });
+    document.getElementById('nextBtn').addEventListener('click', goNext);
+  }
+});
+
+/* ====================== SCREEN: Financial setback ====================== */
+FLOW.push({ id:'setback', html:()=>`
+    <div class="eyebrow chrome">${S.setback_eyebrow}</div>
+    <h2>${S.setback_heading}</h2>
+    <ul class="choice-list" id="setback_list">
+      ${S.setback_opts.map(o=>`<li class="choice-item" tabindex="0" role="button" data-value="${o[0]}">${o[1]}</li>`).join('')}
+    </ul>
+    ${nextBtn()}
+  `,
+  attach:()=>{
+    wireSingleChoice('setback_list', S.setback_opts, v=>{ DATA.attitudes.financial_setback_5yr=v; enableNext(''); });
+    document.getElementById('nextBtn').addEventListener('click', goNext);
+  }
+});
+
+/* ====================== SCREEN: Enke allocation ====================== */
+FLOW.push({ id:'enke', html:()=>`
+    <div class="eyebrow chrome">${S.enke_eyebrow}</div>
+    <h2>${S.enke_heading}</h2>
+    <p>${S.enke_body}</p>
+    <p><strong>${S.enke_q}</strong></p>
+    ${sliderBlock('enke', S.enke_low, S.enke_high)}
+    ${nextBtn()}
+  `,
+  attach:()=>{
+    wireSlider('enke', v=>{ DATA.attitudes.enke_allocation_score=v; enableNext(''); });
+    document.getElementById('nextBtn').addEventListener('click', goNext);
+  }
+});
+
+/* ====================== SCREEN: Political left-right ====================== */
+FLOW.push({ id:'political', html:()=>`
+    <div class="eyebrow chrome">${S.political_eyebrow}</div>
+    <h2>${S.political_heading}</h2>
+    ${sliderBlock('polLR', S.political_low, S.political_high)}
+    ${nextBtn()}
+  `,
+  attach:()=>{
+    wireSlider('polLR', v=>{ DATA.attitudes.political_left_right=v; enableNext(''); });
+    document.getElementById('nextBtn').addEventListener('click', goNext);
+  }
+});
+
+/* ====================== SCREEN: Meaning intensity ====================== */
+FLOW.push({ id:'meaning_intensity', html:()=>`
+    <div class="eyebrow chrome">${S.meaning_eyebrow}</div>
+    <h2>${S.meaning_heading}</h2>
+    ${sliderBlock('meaningInt', S.meaning_low, S.meaning_high)}
+    ${nextBtn()}
+  `,
+  attach:()=>{
+    wireSlider('meaningInt', v=>{ DATA.attitudes.meaning_intensity=v; enableNext(''); });
+    document.getElementById('nextBtn').addEventListener('click', goNext);
+  }
+});
+
+/* ====================== SCREEN: Happiness ====================== */
+FLOW.push({ id:'happiness', html:()=>`
+    <div class="eyebrow chrome">${S.happy_eyebrow}</div>
+    <h2>${S.happy_heading}</h2>
+    ${sliderBlock('happy', S.happy_low, S.happy_high)}
+    ${nextBtn(S.nav_finish)}
+  `,
+  attach:()=>{
+    wireSlider('happy', v=>{ DATA.attitudes.happiness=v; enableNext(''); });
+    document.getElementById('nextBtn').addEventListener('click', (e)=>{
+      const btn = e.currentTarget;
+      btn.disabled = true;
+      btn.textContent = S.nav_submitting;
+      submitAndShowDebrief();
+    });
+  }
+});
+
+/* ====================== Debrief (not part of FLOW; rendered after submit) ====================== */
+function debriefScreen(submitOk, downloadUrl, sessionId){
+  return `
+    <div class="eyebrow chrome">${S.debrief_eyebrow}</div>
+    <h1>${S.debrief_title}</h1>
+    <div class="consent-box">
+      <p>${S.debrief_p1}</p>
+      <p>${S.debrief_p2}</p>
+      ${submitOk ? '' : '<p style="color:var(--warn);">'+S.debrief_fail+'</p><a class="download-link" href="'+downloadUrl+'" download="response_'+sessionId+'.json">'+S.download_backup+'</a>'}
+    </div>
+    <p>${S.debrief_code_intro}</p>
+    <div class="btn-row" style="justify-content:flex-start;">
+      <a class="next" style="text-decoration:none; display:inline-block;" href="${PROLIFIC_COMPLETION_URL}">${S.debrief_return_button}</a>
+    </div>
+    <p class="lede" style="margin-top:18px;">${S.debrief_code_instruction} <strong>${PROLIFIC_COMPLETION_CODE}</strong></p>
+    <footer class="note chrome">${S.debrief_close}</footer>
+  `;
+}
+
+/* ======================================================================
+   SUBMISSION
+   ====================================================================== */
+const GAS_ENDPOINT = "https://script.google.com/macros/s/AKfycbx_SCIW5GtKB3aviC9-sjB_M3uzdnksv4YN20gy4YLinO-4igXtAKXFREZ4jUXyPQKo5A/exec";
+// Prolific's completion code is fixed per study (not per-respondent) — this
+// is the exact URL Prolific generated for you in the study setup page.
+// Loading this URL is what tells Prolific the participant finished; there
+// is no per-respondent code to generate on our side.
+const PROLIFIC_COMPLETION_URL = "https://app.prolific.com/submissions/complete?cc=CNG4MBNT";
+const PROLIFIC_COMPLETION_CODE = "CNG4MBNT";
+
+function flattenData(){
+  const flat = {};
+  function walk(obj, prefix){
+    Object.keys(obj).forEach(k=>{
+      const val = obj[k];
+      const key = prefix ? prefix+'.'+k : k;
+      if(val && typeof val==='object' && !Array.isArray(val)){ walk(val, key); }
+      else { flat[key] = val; }
+    });
+  }
+  walk(DATA,'');
+  return flat;
+}
+
+// Fire-and-forget partial submission at a few checkpoints along the way,
+// so a respondent who drops out mid-survey still leaves usable data.
+// The Apps Script upserts by meta.client_session_id, so each checkpoint
+// (and the final submission) overwrite the same row rather than adding
+// new ones.
+function submitCheckpoint(){
+  const payload = flattenData();
+  fetch(GAS_ENDPOINT, {
+    method:'POST',
+    headers:{ 'Content-Type':'text/plain;charset=utf-8' },
+    body: JSON.stringify(payload)
+  }).then(res=>console.log('Checkpoint ['+DATA.meta.last_checkpoint+'] submitted:', res.status))
+    .catch(err=>console.warn('Checkpoint ['+DATA.meta.last_checkpoint+'] failed (non-blocking):', err));
+}
+
+function submitAndShowDebrief(){
+  leaveScreen(); // log time spent on the final (happiness) screen
+  // Prolific's completion code is fixed per study, not generated per
+  // respondent — we just record which one was shown, for our own log.
+  DATA.meta.completion_code = PROLIFIC_COMPLETION_CODE;
+  DATA.meta.finished_at = new Date().toISOString();
+  DATA.meta.is_complete = true;
+  DATA.meta.last_checkpoint = 'happiness';
+  const payload = flattenData();
+  const downloadUrl = URL.createObjectURL(new Blob([JSON.stringify(payload,null,2)], {type:'application/json'}));
+
+  let submitOk = true;
+  const finish = ()=>{
+    SURVEY_COMPLETE = true;
+    screensEl.innerHTML = '<div class="screen active">'+debriefScreen(submitOk, downloadUrl, DATA.meta.client_session_id)+'</div>';
+    progressBar.style.width = '100%';
+    window.scrollTo(0,0);
+  };
+
+  console.log('Submitting to:', GAS_ENDPOINT);
+  console.log('Payload:', payload);
+
+  fetch(GAS_ENDPOINT, {
+    method:'POST',
+    headers:{ 'Content-Type':'text/plain;charset=utf-8' },
+    body: JSON.stringify(payload)
+  }).then(res=>{
+      console.log('Response status:', res.status, res.statusText);
+      if(!res.ok){ submitOk=false; return res.text().then(t=>console.error('Body (not ok):', t)); }
+      return res.json().then(j=>{
+        console.log('Response body:', j);
+        if(!j || j.status !== 'ok'){ submitOk=false; }
+      }).catch(err=>{ console.error('Could not parse JSON response:', err); submitOk=false; });
+    })
+    .catch(err=>{ console.error('Fetch failed (network/CORS):', err); submitOk=false; })
+    .finally(()=>{ finish(); });
+}
+
+/* ======================================================================
+   ACCESSIBILITY: keyboard activation for clickable list items
+   (.choice-item / .rank-item are plain <li> elements with role="button"
+   and tabindex="0" so they're reachable by Tab; this makes Enter/Space
+   activate them too, same as a native button would respond to.)
+   ====================================================================== */
+document.addEventListener('keydown', function(e){
+  if(e.key !== 'Enter' && e.key !== ' ' && e.key !== 'Spacebar') return;
+  const el = document.activeElement;
+  if(el && (el.classList.contains('choice-item') || el.classList.contains('rank-item'))){
+    e.preventDefault();
+    el.click();
+  }
+});
+
+/* ======================================================================
+   GUARD RAILS: browser back-button trap and accidental-close warning.
+   Respondents should navigate only with the on-screen Continue button —
+   going back with the browser's own back button would desync the app's
+   internal state (current screen index, routing already computed) from
+   whatever stale DOM the browser shows.
+   ====================================================================== */
+let SURVEY_COMPLETE = false;
+history.pushState(null, '', location.href);
+window.addEventListener('popstate', function(){
+  history.pushState(null, '', location.href);
+  if(!SURVEY_COMPLETE){
+    alert(LANG === 'zh'
+      ? '请不要使用浏览器的"后退"按钮——请使用页面上的"继续"按钮进行操作。'
+      : 'Please don\u2019t use your browser\u2019s back button during this survey — use the Continue button on the page instead.');
+  }
+});
+window.addEventListener('beforeunload', function(e){
+  if(!SURVEY_COMPLETE){
+    e.preventDefault();
+    e.returnValue = '';
+  }
+});
+
+/* ======================================================================
+   INIT
+   ====================================================================== */
+render();
+</script>
+</body>
+</html>
